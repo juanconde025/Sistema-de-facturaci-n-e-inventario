@@ -62,6 +62,11 @@ src/
 ├── repository/          # Interfaces JPA para acceso a datos
 ├── SistemaApplication.java # Clase principal que arranca la aplicación Spring Boot
 └── resources/
+    └── static/
+            └── app.js      # Interactividad con el front
+            └── styles.css  # Estilos del front
+    └── templates/
+            └── index.html  # Estructura del front
     └── application.properties # Configuración de la base de datos y otros ajustes
 ```
 
@@ -108,9 +113,9 @@ src/
 
 1. Clonar el repositorio:
 ```bash
-git clone https://github.com/tu-usuario/sistema-facturacion.git
+git clone https://github.com/juanconde025/Sistema-de-facturaci-n-e-inventario.git
 ```
-2. Crear la base de datos sistema_facturacion en tu gestor SQL.
+2. Crear la base de datos pruebatecnica en tu gestor SQL.
 
 3. Configurar las credenciales en application.properties.
 
