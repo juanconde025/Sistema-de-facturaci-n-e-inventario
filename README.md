@@ -15,6 +15,7 @@ Este proyecto es un **Sistema de Facturación e Inventario** desarrollado con **
 - [🧪 Cómo Probar](#-cómo-probar)
 - [📈 Futuras Mejoras](#-futuras-mejoras)
 - [🧑‍💻 Autor](#-autor)
+- [📹 Video Presentacion](#-video-presentación)
 
 ---
 
@@ -145,3 +146,9 @@ mvn spring-boot:run
 **Juan David Conde Martínez**  
 Desarrollador Backend Junior  
 
+
+---
+
+## 📹 Video Presentación
+
+https://www.loom.com/share/b840511abc144bb38c6f005a6c03711c?sid=75b2a66f-3a9b-450d-85bd-ed07faf4b338
