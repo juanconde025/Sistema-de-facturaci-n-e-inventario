@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pruebatecnica.Sistema.dto.MovimientoKardexDTO;
 import com.pruebatecnica.Sistema.model.FacturaKardex;
+import com.pruebatecnica.Sistema.service.ArticuloService;
 import com.pruebatecnica.Sistema.service.FacturaKardexService;
+import com.pruebatecnica.Sistema.service.FacturaService;
 
 @RestController
 @RequestMapping("/api/kardex")
@@ -21,9 +24,15 @@ import com.pruebatecnica.Sistema.service.FacturaKardexService;
 public class FacturaKardexController {
 
     private final FacturaKardexService facturaKardexService;
+    private final ArticuloService articuloService;
+    private final FacturaService facturaService;
 
-    public FacturaKardexController(FacturaKardexService facturaKardexService) {
+    public FacturaKardexController(FacturaKardexService facturaKardexService,
+                                 ArticuloService articuloService,
+                                 FacturaService facturaService) {
         this.facturaKardexService = facturaKardexService;
+        this.articuloService = articuloService;
+        this.facturaService = facturaService;
     }
 
     @GetMapping
@@ -34,24 +43,19 @@ public class FacturaKardexController {
     @GetMapping("/articulo/{codigo}")
     public ResponseEntity<List<FacturaKardex>> obtenerMovimientosPorArticulo(@PathVariable String codigo) {
         List<FacturaKardex> movimientos = facturaKardexService.obtenerPorCodigoArticulo(codigo);
-        if (movimientos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(movimientos);
+        return movimientos.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(movimientos);
     }
 
     @GetMapping("/entradas/{artCod}")
     public ResponseEntity<List<FacturaKardex>> obtenerEntradasPorArticulo(@PathVariable String artCod) {
         List<FacturaKardex> entradas = facturaKardexService.obtenerEntradasOrdenadasPorFecha(artCod);
-        if (entradas.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(entradas);
+        return entradas.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(entradas);
     }
 
     @PostMapping
-    public ResponseEntity<String> guardarMovimiento(@RequestBody FacturaKardex movimiento) {
+    public ResponseEntity<String> guardarMovimiento(@RequestBody MovimientoKardexDTO movimientoDTO) {
         try {
+            FacturaKardex movimiento = convertirDTOaEntidad(movimientoDTO);
             facturaKardexService.guardarMovimiento(movimiento);
             return ResponseEntity.ok("Movimiento registrado exitosamente");
         } catch (IllegalArgumentException e) {
@@ -60,8 +64,9 @@ public class FacturaKardexController {
     }
 
     @PostMapping("/entrada")
-    public ResponseEntity<String> registrarEntrada(@RequestBody FacturaKardex entrada) {
+    public ResponseEntity<String> registrarEntrada(@RequestBody MovimientoKardexDTO movimientoDTO) {
         try {
+            FacturaKardex entrada = convertirDTOaEntidad(movimientoDTO);
             facturaKardexService.registrarEntradaInventario(entrada);
             return ResponseEntity.ok("Entrada de inventario registrada exitosamente");
         } catch (IllegalArgumentException e) {
@@ -70,8 +75,9 @@ public class FacturaKardexController {
     }
 
     @PostMapping("/salida")
-    public ResponseEntity<String> registrarSalida(@RequestBody FacturaKardex salida) {
+    public ResponseEntity<String> registrarSalida(@RequestBody MovimientoKardexDTO movimientoDTO) {
         try {
+            FacturaKardex salida = convertirDTOaEntidad(movimientoDTO);
             facturaKardexService.registrarSalidaInventario(salida, salida.getKarCantSal());
             return ResponseEntity.ok("Salida de inventario registrada exitosamente");
         } catch (IllegalArgumentException e) {
@@ -87,5 +93,17 @@ public class FacturaKardexController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error al eliminar movimientos: " + e.getMessage());
         }
+    }
+
+    private FacturaKardex convertirDTOaEntidad(MovimientoKardexDTO dto) {
+        FacturaKardex movimiento = new FacturaKardex();
+        movimiento.setArticulo(dto.getArticulo());
+        movimiento.setFactura(dto.getFactura());
+        movimiento.setKarCantEnt(dto.getKarCantEnt());
+        movimiento.setKarCantSal(dto.getKarCantSal());
+        movimiento.setKarCosUnit(dto.getKarCosUnit());
+        movimiento.setKarPreVen(dto.getKarPreVen());
+        movimiento.setKarFecVencProd(dto.getKarFecVencProd());
+        return movimiento;
     }
 }

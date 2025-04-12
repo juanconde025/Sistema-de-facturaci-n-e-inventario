@@ -49,7 +49,7 @@ public class FacturaKardex {
     private Factura factura;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "ArtCod", referencedColumnName = "ArtCod", insertable = false, updatable = false)
+    @JoinColumn(name = "ArtCod", referencedColumnName = "ArtCod")
     private Articulo articulo;
 
     public FacturaKardex() {}

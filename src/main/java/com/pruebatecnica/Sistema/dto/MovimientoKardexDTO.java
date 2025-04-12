@@ -2,29 +2,33 @@ package com.pruebatecnica.Sistema.dto;
 
 import java.util.Date;
 
+import com.pruebatecnica.Sistema.model.Articulo;
+import com.pruebatecnica.Sistema.model.Factura;
+
 public class MovimientoKardexDTO {
-    private String artCod;
-    private String facNum;
+    private Articulo articulo;  
+    private Factura factura; 
     private int karCantEnt;
     private int karCantSal;
     private int karCosUnit;
     private int karPreVen;
     private Date karFecVencProd;
 
-    public String getArtCod() {
-        return artCod;
+    // Getters y Setters corregidos
+    public Articulo getArticulo() {
+        return articulo;
     }
 
-    public void setArtCod(String artCod) {
-        this.artCod = artCod;
+    public void setArticulo(Articulo articulo) {
+        this.articulo = articulo;
     }
 
-    public String getFacNum() {
-        return facNum;
+    public Factura getFactura() {
+        return factura;
     }
 
-    public void setFacNum(String facNum) {
-        this.facNum = facNum;
+    public void setFactura(Factura factura) {
+        this.factura = factura;
     }
 
     public int getKarCantEnt() {
