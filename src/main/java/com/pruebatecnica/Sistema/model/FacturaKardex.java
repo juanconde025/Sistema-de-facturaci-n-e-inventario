@@ -1,7 +1,6 @@
 package com.pruebatecnica.Sistema.model;
 
 import java.util.Date;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -24,6 +23,12 @@ public class FacturaKardex {
     @Column(name = "KarSaldo", nullable = false)
     private int karSaldo;
 
+    @Column(name = "KarCosUnit", nullable = true)
+    private Integer karCosUnit;
+
+    @Column(name = "KarPreVen", nullable = true)
+    private Integer karPreVen;
+
     @Temporal(TemporalType.DATE)
     @Column(name = "KarFecVencProd", nullable = true)
     private Date karFecVencProd;
@@ -36,18 +41,24 @@ public class FacturaKardex {
     @JoinColumn(name = "ArtCod", nullable = false)
     private Articulo articulo;
 
+    // Constructores
     public FacturaKardex() {}
 
-    public FacturaKardex(int karCantInit, int karCantEnt, int karCantSal, int karSaldo, Date karFecVencProd, Factura factura, Articulo articulo) {
+    public FacturaKardex(int karCantInit, int karCantEnt, int karCantSal, int karSaldo, 
+                        Integer karCosUnit, Integer karPreVen, Date karFecVencProd, 
+                        Factura factura, Articulo articulo) {
         this.karCantInit = karCantInit;
         this.karCantEnt = karCantEnt;
         this.karCantSal = karCantSal;
         this.karSaldo = karSaldo;
+        this.karCosUnit = karCosUnit;
+        this.karPreVen = karPreVen;
         this.karFecVencProd = karFecVencProd;
         this.factura = factura;
         this.articulo = articulo;
     }
 
+    // Getters y Setters
     public Integer getId() {
         return id;
     }
@@ -86,6 +97,22 @@ public class FacturaKardex {
 
     public void setKarSaldo(int karSaldo) {
         this.karSaldo = karSaldo;
+    }
+
+    public Integer getKarCosUnit() {
+        return karCosUnit;
+    }
+
+    public void setKarCosUnit(Integer karCosUnit) {
+        this.karCosUnit = karCosUnit;
+    }
+
+    public Integer getKarPreVen() {
+        return karPreVen;
+    }
+
+    public void setKarPreVen(Integer karPreVen) {
+        this.karPreVen = karPreVen;
     }
 
     public Date getKarFecVencProd() {
