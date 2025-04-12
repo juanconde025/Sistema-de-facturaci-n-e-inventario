@@ -1,12 +1,13 @@
 package com.pruebatecnica.Sistema.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.pruebatecnica.Sistema.model.Articulo;
 import com.pruebatecnica.Sistema.model.Factura;
 import com.pruebatecnica.Sistema.model.FacturaKardex;
 import com.pruebatecnica.Sistema.repository.FacturaKardexRepository;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class FacturaKardexService {
