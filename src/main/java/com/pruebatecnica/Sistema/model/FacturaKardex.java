@@ -4,6 +4,7 @@ import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -47,8 +48,8 @@ public class FacturaKardex {
     @JoinColumn(name = "FacNum", nullable = false)
     private Factura factura;
 
-    @ManyToOne
-    @JoinColumn(name = "ArtCod", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ArtCod", referencedColumnName = "ArtCod", insertable = false, updatable = false)
     private Articulo articulo;
 
     public FacturaKardex() {}

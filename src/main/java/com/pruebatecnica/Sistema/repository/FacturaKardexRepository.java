@@ -17,4 +17,6 @@ public interface FacturaKardexRepository extends JpaRepository<FacturaKardex, In
     List<FacturaKardex> findByArticulo_ArtCodAndKarCantEntGreaterThanOrderByFactura_FacFVenAsc(String artCod, int cantidad);
     
     List<FacturaKardex> findByArticulo_ArtCodOrderByFactura_FacFechaAsc(String artCod);
+
+    List<FacturaKardex> findByArticulo_ArtCod(String artCod);
 }

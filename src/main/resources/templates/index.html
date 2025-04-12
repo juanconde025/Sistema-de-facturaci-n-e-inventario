@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Sistema de Facturación e Inventario</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- <link rel="stylesheet" href="../static/css/styles.css"> -->
   <style>
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -47,7 +46,6 @@
         font-weight: bold;
         color: #198754;
     }
-  
   </style>
 </head>
 <body class="bg-light p-4">
@@ -91,6 +89,9 @@
           <div class="col-md-2">
             <button class="btn btn-success" onclick="buscarArticulo()">Buscar artículo</button>
           </div>
+          <div class="col-md-2">
+            <button class="btn btn-info" onclick="cargarKardex()">Ver Kardex</button>
+          </div>
         </div>
         <div id="infoArticulo"></div>
 
@@ -104,13 +105,13 @@
               </select>
             </div>
             <div class="col-md-2">
-              <input type="number" class="form-control" id="unidades" placeholder="Unidades">
+              <input type="number" class="form-control" id="unidades" placeholder="Unidades" min="1" required>
             </div>
             <div class="col-md-2">
-              <input type="number" class="form-control" id="costos" placeholder="Costo unitario">
+              <input type="number" class="form-control" id="costos" placeholder="Costo unitario" min="0" step="0.01">
             </div>
             <div class="col-md-2">
-              <input type="number" class="form-control" id="precioVenta" placeholder="Precio venta">
+              <input type="number" class="form-control" id="precioVenta" placeholder="Precio venta" min="0" step="0.01">
             </div>
             <div class="col-md-2">
               <button type="submit" class="btn btn-primary">Guardar</button>
@@ -131,172 +132,210 @@
               <th>Entrada</th>
               <th>Salida</th>
               <th>Saldo</th>
-              <th>Costo</th>
+              <th>Costo Unitario</th>
               <th>Precio Venta</th>
               <th>Total Costos</th>
               <th>Total Venta</th>
-              <th>Fecha Vencimiento</th>
+              <th>Fecha Movimiento</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
-        <div class="d-flex justify-content-between">
-          <div>Total Costos: <span id="totalCostos">0</span></div>
-          <div>Total Venta: <span id="totalVenta">0</span></div>
+        <div class="d-flex justify-content-between mt-3">
+          <div class="fw-bold">Total Costos: <span id="totalCostos">0</span></div>
+          <div class="fw-bold">Total Venta: <span id="totalVenta">0</span></div>
         </div>
       </div>
     </div>
 
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
+    // Función para buscar cliente
     function buscarCliente() {
-        const nit = document.getElementById('nitInput').value;
+        const nit = document.getElementById('nitInput').value.trim();
+        if (!nit) {
+            alert('Por favor ingrese un NIT');
+            return;
+        }
+        
         axios.get(`/api/facturas/info/${nit}`)
             .then(res => {
-                const data = res.data;
-                const cliente = data.nit;
-                const factura = data.facturaProxima;
-    
+                const { nit: cliente, facturaProxima: factura } = res.data;
+                
                 document.getElementById('infoCliente').innerHTML = `
                     <p><strong>Nombre:</strong> ${cliente.nitNom}</p>
-                    <p><strong>Cupo:</strong> $${cliente.nitCup}</p>
+                    <p><strong>Cupo:</strong> $${cliente.nitCup.toLocaleString()}</p>
                     <p><strong>Plazo:</strong> ${cliente.nitPla} días</p>
-                    <p><strong>Cartera:</strong> $${cliente.nitCar}</p>
-                    <p><strong>Disponible:</strong> $${cliente.nitDis}</p>
+                    <p><strong>Cartera:</strong> $${cliente.nitCar.toLocaleString()}</p>
+                    <p><strong>Disponible:</strong> $${cliente.nitDis.toLocaleString()}</p>
                 `;
-    
+                
                 if (factura) {
                     const fechaCreacion = new Date(factura.facFecha).toLocaleDateString('es-ES');
                     const fechaVencimiento = new Date(factura.facFVen).toLocaleDateString('es-ES');
                     document.getElementById('infoFactura').innerHTML = `
                         <p><strong>Número:</strong> ${factura.facNum}</p>
-                        <p><strong>Fecha de creación:</strong> ${fechaCreacion}</p>
-                        <p><strong>Fecha de vencimiento:</strong> ${fechaVencimiento}</p>
+                        <p><strong>Fecha creación:</strong> ${fechaCreacion}</p>
+                        <p><strong>Vencimiento:</strong> ${fechaVencimiento}</p>
                     `;
-    
-                    console.log("Factura recibida:", factura); 
                 } else {
-                    document.getElementById('infoFactura').innerHTML = `<p>No hay factura próxima registrada.</p>`;
+                    document.getElementById('infoFactura').innerHTML = '<p class="text-muted">No hay facturas registradas</p>';
                 }
             })
-            .catch(() => {
-                alert('Cliente no encontrado');
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al buscar cliente: ' + (error.response?.data?.message || 'Cliente no encontrado'));
             });
     }
-    
+
+    // Función para buscar artículo
     function buscarArticulo() {
-        const cod = document.getElementById('codigoArticulo').value;
+        const cod = document.getElementById('codigoArticulo').value.trim();
+        if (!cod) {
+            alert('Por favor ingrese un código de artículo');
+            return;
+        }
+        
         axios.get(`/api/articulos/${cod}`)
             .then(res => {
                 const art = res.data;
                 document.getElementById('infoArticulo').innerHTML = `
                     <p><strong>Nombre:</strong> ${art.artNom}</p>
                     <p><strong>Laboratorio:</strong> ${art.artLab}</p>
-                    <p><strong>Saldo:</strong> ${art.artSal}</p>
+                    <p><strong>Saldo actual:</strong> ${art.artSal}</p>
                 `;
             })
-            .catch(() => {
-                alert('Artículo no encontrado');
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al buscar artículo: ' + (error.response?.data?.message || 'Artículo no encontrado'));
             });
     }
-    
+
+    // Función para alternar campos según tipo de movimiento
     function toggleCampos() {
-        const naturaleza = document.getElementById('naturaleza').value;
+        const tipo = document.getElementById('naturaleza').value;
         const costos = document.getElementById('costos');
         const precioVenta = document.getElementById('precioVenta');
-    
-        if (naturaleza === 'entrada') {
+        
+        if (tipo === 'entrada') {
             costos.removeAttribute('disabled');
+            costos.setAttribute('required', 'true');
             precioVenta.setAttribute('disabled', 'true');
+            precioVenta.removeAttribute('required');
         } else {
             costos.setAttribute('disabled', 'true');
+            costos.removeAttribute('required');
             precioVenta.removeAttribute('disabled');
+            precioVenta.setAttribute('required', 'true');
         }
     }
-    
+
+    // Función para guardar movimiento
     function guardarMovimiento(e) {
-      e.preventDefault();
-
-      const nit = document.getElementById('nitInput').value;
-      const codArt = document.getElementById('codigoArticulo').value;
-      const naturaleza = document.getElementById('naturaleza').value;
-      const unidades = parseInt(document.getElementById('unidades').value);
-      const costos = parseFloat(document.getElementById('costos').value);
-      const precioVenta = parseFloat(document.getElementById('precioVenta').value);
-
-      if (!nit || !codArt || !unidades || (naturaleza === 'entrada' && isNaN(costos)) || (naturaleza === 'salida' && isNaN(precioVenta))) {
-          alert('Completa todos los campos requeridos');
-          return;
-      }
-
-      if (naturaleza === 'salida' && precioVenta <= costos) {
-          alert('El precio de venta debe ser mayor al costo unitario.');
-          return;
-      }
-
-      const payload = {
-          nitDoc: nit,
-          artCod: codArt,
-          naturaleza: naturaleza,
-          karCantEnt: naturaleza === 'entrada' ? unidades : 0,
-          karCantSal: naturaleza === 'salida' ? unidades : 0,
-          karCosUnit: naturaleza === 'entrada' ? costos : 0,
-          karPreVen: naturaleza === 'salida' ? precioVenta : 0
-      };
-
-      const endpoint = naturaleza === 'entrada' ? '/api/kardex/entrada' : '/api/kardex/salida';
-
-      axios.post(endpoint, payload)
-          .then(() => {
-              alert('Movimiento registrado con éxito');
-              cargarKardex();
-          })
-          .catch(() => {
-              alert('Error al guardar el movimiento');
-          });
-    }
-
-    
-    function cargarKardex() {
-        const codArt = document.getElementById('codigoArticulo').value;
-        axios.get(`/api/kardex/${codArt}`)
-            .then(res => {
-                const tbody = document.querySelector('#tablaKardex tbody');
-                tbody.innerHTML = '';
-                let totalCostos = 0;
-                let totalVenta = 0;
-    
-                res.data.forEach(entry => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${entry.artNom}</td>
-                            <td>${entry.karCantEnt}</td>
-                            <td>${entry.karCantSal}</td>
-                            <td>${entry.karSaldo}</td>
-                            <td>${entry.karCosUnit}</td>
-                            <td>${entry.karPreVen}</td>
-                            <td>${entry.karTotCos}</td>
-                            <td>${entry.karTotVen}</td>
-                            <td>${entry.karFecVencProd ? new Date(entry.karFecVencProd).toLocaleDateString() : '-'}</td>
-                        </tr>
-                    `;
-                    totalCostos += entry.karTotCos;
-                    totalVenta += entry.karTotVen;
-                });
-    
-                document.getElementById('totalCostos').textContent = totalCostos.toFixed(2);
-                document.getElementById('totalVenta').textContent = totalVenta.toFixed(2);
+        e.preventDefault();
+        
+        const nit = document.getElementById('nitInput').value.trim();
+        const codArt = document.getElementById('codigoArticulo').value.trim();
+        const tipo = document.getElementById('naturaleza').value;
+        const unidades = parseInt(document.getElementById('unidades').value);
+        const costo = parseFloat(document.getElementById('costos').value) || 0;
+        const precio = parseFloat(document.getElementById('precioVenta').value) || 0;
+        
+        if (!nit || !codArt || !unidades) {
+            alert('Complete todos los campos requeridos');
+            return;
+        }
+        
+        if (tipo === 'salida' && precio <= costo) {
+            alert('El precio de venta debe ser mayor al costo');
+            return;
+        }
+        
+        axios.get(`/api/facturas/info/${nit}`)
+            .then(response => {
+                const factura = response.data.facturaProxima;
+                if (tipo === 'salida' && !factura) {
+                    throw new Error('Se requiere factura para salidas');
+                }
+                
+                const movimiento = {
+                    artCod: codArt,
+                    facNum: factura?.facNum || null,
+                    karCantEnt: tipo === 'entrada' ? unidades : 0,
+                    karCantSal: tipo === 'salida' ? unidades : 0,
+                    karCosUnit: tipo === 'entrada' ? costo : 0,
+                    karPreVen: tipo === 'salida' ? precio : 0
+                };
+                
+                const endpoint = tipo === 'entrada' ? '/api/kardex/entrada' : '/api/kardex/salida';
+                return axios.post(endpoint, movimiento);
+            })
+            .then(() => {
+                alert('Movimiento registrado con éxito');
+                document.getElementById('formMovimiento').reset();
+                buscarArticulo(); // Actualizar info del artículo
+                cargarKardex();   // Actualizar kardex
             })
             .catch(error => {
-                console.error('Error al cargar kardex:', error);
-                alert('Error al cargar el kardex');
+                console.error('Error:', error);
+                alert('Error: ' + (error.response?.data || error.message));
             });
     }
-    </script>
-    
 
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <!-- <script src="../static/js/app.js"></script> -->
+    // Función para cargar el kardex
+    function cargarKardex() {
+        const codArt = document.getElementById('codigoArticulo').value.trim();
+        if (!codArt) {
+            alert('Ingrese un código de artículo primero');
+            return;
+        }
+        
+        axios.get(`/api/kardex/articulo/${codArt}`)
+            .then(response => {
+                const movimientos = response.data;
+                const tbody = document.querySelector('#tablaKardex tbody');
+                tbody.innerHTML = '';
+                
+                let totalCostos = 0;
+                let totalVenta = 0;
+                
+                movimientos.forEach(mov => {
+                    const costoTotal = mov.karCantEnt * mov.karCosUnit;
+                    const ventaTotal = mov.karCantSal * mov.karPreVen;
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${mov.articulo?.artNom || 'N/A'}</td>
+                            <td>${mov.karCantEnt}</td>
+                            <td>${mov.karCantSal}</td>
+                            <td>${mov.karSaldo}</td>
+                            <td>${mov.karCosUnit?.toLocaleString() || '0'}</td>
+                            <td>${mov.karPreVen?.toLocaleString() || '0'}</td>
+                            <td>${costoTotal.toLocaleString()}</td>
+                            <td>${ventaTotal.toLocaleString()}</td>
+                            <td>${mov.factura?.facFecha ? new Date(mov.factura.facFecha).toLocaleDateString('es-ES') : 'N/A'}</td>
+                        </tr>
+                    `;
+                    
+                    totalCostos += costoTotal;
+                    totalVenta += ventaTotal;
+                });
+                
+                document.getElementById('totalCostos').textContent = totalCostos.toLocaleString();
+                document.getElementById('totalVenta').textContent = totalVenta.toLocaleString();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar kardex: ' + (error.response?.data?.message || error.message));
+            });
+    }
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => {
+        toggleCampos(); // Establecer estado inicial de los campos
+    });
+  </script>
 </body>
 </html>

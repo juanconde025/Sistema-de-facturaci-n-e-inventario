@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.pruebatecnica.Sistema.model.Articulo;
-import com.pruebatecnica.Sistema.model.Factura;
 import com.pruebatecnica.Sistema.model.FacturaKardex;
 import com.pruebatecnica.Sistema.repository.FacturaKardexRepository;
 
@@ -33,65 +32,42 @@ public class FacturaKardexService {
         facturaKardexRepository.deleteByFactura_FacNum(facNum);
     }
 
-    public void registrarSalidaInventario(FacturaKardex salida, int cantidadASacar) {
-        Articulo articulo = salida.getArticulo();
-        if (articulo == null) {
-            throw new IllegalArgumentException("El artículo no puede ser nulo para registrar la salida.");
+    public void registrarEntradaInventario(FacturaKardex entrada) {
+        if (entrada.getArticulo() == null || entrada.getFactura() == null) {
+            throw new IllegalArgumentException("Artículo y Factura son requeridos");
         }
 
-        Factura factura = salida.getFactura();
-        int cantidadRestante = cantidadASacar;
+        Articulo articulo = entrada.getArticulo();
+        entrada.setKarCantInit(articulo.getArtSal());
+        entrada.setKarCantSal(0);
+        entrada.setKarSaldo(articulo.getArtSal() + entrada.getKarCantEnt());
 
-        List<FacturaKardex> entradas = facturaKardexRepository
-            .findByArticulo_ArtCodAndKarSaldoGreaterThanOrderByKarFecVencProdAsc(articulo.getArtCod(), 0);
-
-        for (FacturaKardex entrada : entradas) {
-            if (cantidadRestante <= 0) break;
-
-            int saldoDisponible = entrada.getKarSaldo();
-            int cantidadUsada = Math.min(cantidadRestante, saldoDisponible);
-
-            entrada.setKarSaldo(saldoDisponible - cantidadUsada);
-            facturaKardexRepository.save(entrada);
-
-            FacturaKardex movimientoSalida = new FacturaKardex();
-            movimientoSalida.setFactura(factura);
-            movimientoSalida.setArticulo(articulo);
-            movimientoSalida.setKarCantInit(articulo.getArtSal());
-            movimientoSalida.setKarCantEnt(0);
-            movimientoSalida.setKarCantSal(cantidadUsada);
-            movimientoSalida.setKarSaldo(articulo.getArtSal() - cantidadUsada);
-            movimientoSalida.setKarFecVencProd(entrada.getKarFecVencProd());
-
-            articulo.setArtSal(articulo.getArtSal() - cantidadUsada);
-            facturaKardexRepository.save(movimientoSalida);
-
-            cantidadRestante -= cantidadUsada;
-        }
-
-        if (cantidadRestante > 0) {
-            throw new RuntimeException("No hay suficiente inventario disponible para esta salida.");
-        }
+        articulo.setArtSal(entrada.getKarSaldo());
+        
+        facturaKardexRepository.save(entrada);
     }
 
-    public void registrarEntradaInventario(FacturaKardex entrada) {
-        if (entrada.getArticulo() == null) {
-            throw new IllegalArgumentException("El artículo no puede ser nulo para registrar la entrada.");
+    public void registrarSalidaInventario(FacturaKardex salida, int cantidadASacar) {
+        if (salida.getArticulo() == null || salida.getFactura() == null) {
+            throw new IllegalArgumentException("Artículo y Factura son requeridos");
         }
 
-        entrada.setKarCantSal(0);
-        entrada.setKarSaldo(entrada.getKarCantEnt());
-        entrada.setKarCantInit(entrada.getArticulo().getArtSal());
+        Articulo articulo = salida.getArticulo();
+        salida.setKarCantInit(articulo.getArtSal());
+        salida.setKarCantEnt(0);
+        salida.setKarSaldo(articulo.getArtSal() - salida.getKarCantSal());
 
-        int nuevoSaldo = entrada.getArticulo().getArtSal() + entrada.getKarCantEnt();
-        entrada.getArticulo().setArtSal(nuevoSaldo);
-        entrada.setKarSaldo(nuevoSaldo);
-
-        facturaKardexRepository.save(entrada);
+        articulo.setArtSal(salida.getKarSaldo());
+        
+        facturaKardexRepository.save(salida);
     }
 
     public List<FacturaKardex> obtenerEntradasOrdenadasPorFecha(String artCod) {
         return facturaKardexRepository
                 .findByArticulo_ArtCodAndKarCantEntGreaterThanOrderByFactura_FacFVenAsc(artCod, 0);
+    }
+
+    public List<FacturaKardex> obtenerPorCodigoArticulo(String codigo) {
+        return facturaKardexRepository.findByArticulo_ArtCod(codigo);
     }
 }
