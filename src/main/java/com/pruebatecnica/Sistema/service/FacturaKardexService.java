@@ -23,6 +23,9 @@ public class FacturaKardexService {
     }
 
     public void guardarMovimiento(FacturaKardex kardex) {
+        if (kardex.getArticulo() == null) {
+            throw new IllegalArgumentException("El artículo no puede ser nulo.");
+        }
         facturaKardexRepository.save(kardex);
     }
 
@@ -32,12 +35,15 @@ public class FacturaKardexService {
 
     public void registrarSalidaInventario(FacturaKardex salida, int cantidadASacar) {
         Articulo articulo = salida.getArticulo();
+        if (articulo == null) {
+            throw new IllegalArgumentException("El artículo no puede ser nulo para registrar la salida.");
+        }
+
         Factura factura = salida.getFactura();
         int cantidadRestante = cantidadASacar;
 
         List<FacturaKardex> entradas = facturaKardexRepository
             .findByArticulo_ArtCodAndKarSaldoGreaterThanOrderByKarFecVencProdAsc(articulo.getArtCod(), 0);
-
 
         for (FacturaKardex entrada : entradas) {
             if (cantidadRestante <= 0) break;
@@ -69,6 +75,10 @@ public class FacturaKardexService {
     }
 
     public void registrarEntradaInventario(FacturaKardex entrada) {
+        if (entrada.getArticulo() == null) {
+            throw new IllegalArgumentException("El artículo no puede ser nulo para registrar la entrada.");
+        }
+
         entrada.setKarCantSal(0);
         entrada.setKarSaldo(entrada.getKarCantEnt());
         entrada.setKarCantInit(entrada.getArticulo().getArtSal());

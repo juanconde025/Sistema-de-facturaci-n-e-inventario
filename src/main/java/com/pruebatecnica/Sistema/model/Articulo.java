@@ -37,7 +37,7 @@ public class Articulo {
     private Date artFVen;
 
     public Articulo() {}
-
+    
     public Articulo(String artCod, String artNom, String artLab, int artSal, int artCos, int artPrV, Date artFVen) {
         this.artCod = artCod;
         this.artNom = artNom;
@@ -104,4 +104,3 @@ public class Articulo {
         this.artFVen = artFVen;
     }
 }
-

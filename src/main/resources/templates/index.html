@@ -216,43 +216,47 @@
     }
     
     function guardarMovimiento(e) {
-        e.preventDefault();
-    
-        const nit = document.getElementById('nitInput').value;
-        const codArt = document.getElementById('codigoArticulo').value;
-        const naturaleza = document.getElementById('naturaleza').value;
-        const unidades = parseInt(document.getElementById('unidades').value);
-        const costos = parseFloat(document.getElementById('costos').value);
-        const precioVenta = parseFloat(document.getElementById('precioVenta').value);
-    
-        if (!nit || !codArt || !unidades || (naturaleza === 'entrada' && !costos) || (naturaleza === 'salida' && !precioVenta)) {
-            alert('Completa todos los campos requeridos');
-            return;
-        }
-    
-        if (naturaleza === 'salida' && precioVenta <= costos) {
-            alert('El precio de venta debe ser mayor al costo unitario.');
-            return;
-        }
-    
-        const payload = {
-            nit: nit,
-            articulo: codArt,
-            naturaleza: naturaleza,
-            unidades: unidades,
-            costos: naturaleza === 'entrada' ? costos : null,
-            precioVenta: naturaleza === 'salida' ? precioVenta : null
-        };
-    
-        axios.post('/api/kardex', payload)
-            .then(() => {
-                alert('Movimiento registrado con éxito');
-                cargarKardex();
-            })
-            .catch(() => {
-                alert('Error al guardar el movimiento');
-            });
+      e.preventDefault();
+
+      const nit = document.getElementById('nitInput').value;
+      const codArt = document.getElementById('codigoArticulo').value;
+      const naturaleza = document.getElementById('naturaleza').value;
+      const unidades = parseInt(document.getElementById('unidades').value);
+      const costos = parseFloat(document.getElementById('costos').value);
+      const precioVenta = parseFloat(document.getElementById('precioVenta').value);
+
+      if (!nit || !codArt || !unidades || (naturaleza === 'entrada' && isNaN(costos)) || (naturaleza === 'salida' && isNaN(precioVenta))) {
+          alert('Completa todos los campos requeridos');
+          return;
+      }
+
+      if (naturaleza === 'salida' && precioVenta <= costos) {
+          alert('El precio de venta debe ser mayor al costo unitario.');
+          return;
+      }
+
+      const payload = {
+          nitDoc: nit,
+          artCod: codArt,
+          naturaleza: naturaleza,
+          karCantEnt: naturaleza === 'entrada' ? unidades : 0,
+          karCantSal: naturaleza === 'salida' ? unidades : 0,
+          karCosUnit: naturaleza === 'entrada' ? costos : 0,
+          karPreVen: naturaleza === 'salida' ? precioVenta : 0
+      };
+
+      const endpoint = naturaleza === 'entrada' ? '/api/kardex/entrada' : '/api/kardex/salida';
+
+      axios.post(endpoint, payload)
+          .then(() => {
+              alert('Movimiento registrado con éxito');
+              cargarKardex();
+          })
+          .catch(() => {
+              alert('Error al guardar el movimiento');
+          });
     }
+
     
     function cargarKardex() {
         const codArt = document.getElementById('codigoArticulo').value;
