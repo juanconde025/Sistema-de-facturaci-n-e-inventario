@@ -1,6 +1,6 @@
 package com.pruebatecnica.Sistema.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,11 +21,11 @@ public class Factura {
 
     @Column(name = "FacFecha", nullable = false)
     @Temporal(TemporalType.DATE)
-    private Date facFecha;
+    private LocalDate facFecha;
 
     @Column(name = "FacFVen", nullable = false)
     @Temporal(TemporalType.DATE)
-    private Date facFVen;
+    private LocalDate facFVen;
 
     @Column(name = "FacTVenta", nullable = false)
     private int facTVenta;
@@ -40,7 +40,7 @@ public class Factura {
 
     public Factura() {}
 
-    public Factura(String facNum, Date facFecha, Date facFVen, int facTVenta, Nit nit, Articulo articulo) {
+    public Factura(String facNum, LocalDate facFecha, LocalDate facFVen, int facTVenta, Nit nit, Articulo articulo) {
         this.facNum = facNum;
         this.facFecha = facFecha;
         this.facFVen = facFVen;
@@ -57,19 +57,19 @@ public class Factura {
         this.facNum = facNum;
     }
 
-    public Date getFacFecha() {
+    public LocalDate getFacFecha() {
         return facFecha;
     }
 
-    public void setFacFecha(Date facFecha) {
+    public void setFacFecha(LocalDate facFecha) {
         this.facFecha = facFecha;
     }
 
-    public Date getFacFVen() {
+    public LocalDate getFacFVen() {
         return facFVen;
     }
 
-    public void setFacFVen(Date facFVen) {
+    public void setFacFVen(LocalDate facFVen) {
         this.facFVen = facFVen;
     }
 
