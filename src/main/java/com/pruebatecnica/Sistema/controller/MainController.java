@@ -10,4 +10,19 @@ public class MainController {
     public String home() {
         return "index"; 
     }
+
+    @GetMapping("/nit.html")
+    public String nit() {
+        return "nit"; 
+    }
+
+    @GetMapping("/index.html")
+    public String index() {
+        return "index"; 
+    }
+
+    @GetMapping("/articulo.html")
+    public String articulo() {
+        return "articulo"; 
+    }
 }
