@@ -30,4 +30,16 @@ public class NitController {
         nitService.guardarNit(nit);
         return ResponseEntity.ok("Cliente guardado correctamente.");
     }
+
+    @DeleteMapping("/{nitDoc}")
+    public ResponseEntity<String> eliminarNit(@PathVariable String nitDoc) {
+        Optional<Nit> nit = nitService.obtenerPorNitDoc(nitDoc);
+        if (nit.isPresent()) {
+            nitService.eliminarCliente(nit.get());
+            return ResponseEntity.ok("Cliente eliminado correctamente.");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

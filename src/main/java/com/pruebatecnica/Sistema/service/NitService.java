@@ -22,4 +22,8 @@ public class NitService {
     public void guardarNit(Nit nit) {
         nitRepository.save(nit);
     }
+
+    public void eliminarCliente(Nit nit){
+        nitRepository.delete(nit);
+    }
 }

@@ -22,4 +22,8 @@ public class ArticuloService {
     public void guardarArticulo(Articulo articulo) {
         articuloRepository.save(articulo);
     }
+
+    public void eliminarArticulo(Articulo articulo){
+        articuloRepository.delete(articulo);
+    }
 }

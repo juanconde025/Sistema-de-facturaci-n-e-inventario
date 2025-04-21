@@ -110,6 +110,47 @@
         }
         });
 
+        document.getElementById("buscarCliente").addEventListener("click", async () => {
+            const nit = document.getElementById("buscarId").value;
+
+            const response= await fetch(`http://localhost:8081/api/nits/${nit}`);
+
+            if (response.ok) {
+                const cliente = await response.json();
+
+                const resultadoDiv = document.getElementById('resultadoCliente');
+                resultadoDiv.innerHTML = `
+                <div class="card mt-3 mb-3">
+                    <div class="card-body" data-id="${cliente.nitDoc}" id="card">
+                    <h5 class="card-title">${cliente.nitNom}</h5>
+                    <p><strong>Documento:</strong> ${cliente.nitDoc}</p>
+                    <p><strong>Cupo:</strong> ${cliente.nitCup}</p>
+                    <p><strong>Plazo:</strong> ${cliente.nitPla}</p>
+                    <p><strong>Disponible:</strong> ${cliente.nitDis}</p>
+                    <p><strong>Cartera:</strong> ${cliente.nitCar}</p>
+                    <button type="button" class="btn btn-danger" onclick='eliminarCliente("${cliente.nitDoc}")'>Eliminar</button>
+                    </div>
+                </div>`;
+
+            } else {
+                document.getElementById("resultadoCliente").innerHTML = '<p class="text-danger">Cliente no encontrado</p>'
+            }
+        });
+        
+        async function eliminarCliente(nit){
+            if (confirm('Esta seguro de eliminar el cliente?')) {
+                const response = await fetch(`http://localhost:8081/api/nits/${nit}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    alert('Cliente eliminado con exito');
+                    document.getElementById('resultado').innerHTML='';
+                } else {
+                    alert('Error al aliminar el cliente');
+                }
+            }
+        }
     </script>
 </body>
 </html>

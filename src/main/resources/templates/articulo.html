@@ -80,9 +80,9 @@
       <div>
         <h3>Buscar Articulo por codigo</h3>
         <input type="number" id="buscarId" class="form-control mb-2" placeholder="Ingrese el codigo del articulo">
-        <button id="buscarCliente" class="btn btn-info">Buscar Ariculo</button>
+        <button id="buscarArticulo" class="btn btn-info">Buscar Articulo</button>
       </div>
-  
+      
       <div id="resultadoArticulo" class="mt-4"></div>
     
       <script>
@@ -116,7 +116,47 @@
                 }
                 });
 
+            document.getElementById("buscarArticulo").addEventListener("click", async () => {
+                const codigo = document.getElementById("buscarId").value;
 
+                const response = await fetch(`http://localhost:8081/api/articulos/${codigo}`);
+
+                if (response.ok) {
+                const articulo = await response.json();
+
+                const resultadoDiv = document.getElementById('resultadoArticulo');
+                resultadoDiv.innerHTML = `
+                    <div class="card mt-3 mb-3">
+                    <div class="card-body" data-id="${articulo.artCod}" id="card">
+                        <h5 class="card-title">${articulo.artNom}</h5>
+                        <p><strong>Código:</strong> ${articulo.artCod}</p>
+                        <p><strong>Laboratorio:</strong> ${articulo.artLab}</p>
+                        <p><strong>Saldo:</strong> ${articulo.artSal}</p>
+                        <p><strong>Fecha Vencimiento:</strong> ${articulo.artFVen}</p>
+                        <p><strong>Costo:</strong> ${articulo.artCos}</p>
+                        <p><strong>Precio Venta:</strong> ${articulo.artPrV}</p>
+                        <button type="button" class="btn btn-danger" onclick='eliminarArticulo("${articulo.artCod}")'>Eliminar</button>
+                    </div>
+                    </div>`;
+                } else {
+                document.getElementById("resultadoArticulo").innerHTML = '<p class="text-danger">Artículo no encontrado</p>';
+                }
+            });
+
+            async function eliminarArticulo(codigo) {
+                if (confirm('¿Está seguro de eliminar el artículo?')) {
+                const response = await fetch(`http://localhost:8081/api/articulos/${codigo}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    alert('Artículo eliminado con éxito');
+                    document.getElementById('resultadoArticulo').innerHTML = '';
+                } else {
+                    alert('Error al eliminar el artículo');
+                }
+                }
+            }
       </script>
 </body>
 </html>
