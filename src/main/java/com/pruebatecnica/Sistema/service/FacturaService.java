@@ -34,4 +34,8 @@ public class FacturaService {
                 .filter(f -> f.getFacFVen() != null)
                 .min(Comparator.comparing(Factura::getFacFVen));
     }
+
+    public void eliminarFactura(String facNum) {
+        facturaRepository.deleteById(facNum);
+    }
 }

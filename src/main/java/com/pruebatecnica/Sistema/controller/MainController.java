@@ -25,4 +25,10 @@ public class MainController {
     public String articulo() {
         return "articulo"; 
     }
+
+    @GetMapping("/factura.html")
+    public String factura() {
+        return "factura";
+    }
+
 }

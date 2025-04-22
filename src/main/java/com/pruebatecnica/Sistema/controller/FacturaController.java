@@ -32,7 +32,6 @@ public class FacturaController {
         }
 
         Nit nit = nitOpt.get();
-
         Optional<Factura> facturaProxima = facturaService.obtenerFacturaProximaPorNit(nitDoc);
 
         Map<String, Object> response = new HashMap<>();
@@ -53,5 +52,16 @@ public class FacturaController {
         return facturaService.obtenerPorFacNum(facNum)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/eliminar/{facNum}")
+    public ResponseEntity<String> eliminarFactura(@PathVariable String facNum) {
+        Optional<Factura> facturaOpt = facturaService.obtenerPorFacNum(facNum);
+        if (facturaOpt.isPresent()) {
+            facturaService.eliminarFactura(facNum);
+            return ResponseEntity.ok("Factura eliminada exitosamente.");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
